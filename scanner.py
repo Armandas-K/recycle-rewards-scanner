@@ -1,40 +1,21 @@
-import cv2
-import tkinter as tk
-from PIL import Image, ImageTk
+from pyzbar.pyzbar import decode
+import time
 
-# webcam url, must be on same wi-fi
-# using "IP Webcam" on playstore
-STREAM_URL = "http://192.168.1.196:8080/video"
+class BarcodeScanner:
+    def __init__(self, on_scan):
+        self.on_scan = on_scan
+        self.last_scan = ("", 0)
+        self.cooldown = 3  # seconds before same barcode triggers again
 
-class CameraFeed:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Recycle Rewards — Scanner")
+    def process_frame(self, frame):
+        barcodes = decode(frame)
+        for barcode in barcodes:
+            data = barcode.data.decode("utf-8")
+            now = time.time()
 
-        self.label = tk.Label(root)
-        self.label.pack()
+            # ignore repeated scans of same barcode within cooldown
+            if data == self.last_scan[0] and now - self.last_scan[1] < self.cooldown:
+                continue
 
-        self.cap = cv2.VideoCapture(STREAM_URL)
-        self.update()
-
-    def update(self):
-        ret, frame = self.cap.read()
-        if ret:
-            frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            img = Image.fromarray(frame)
-            imgtk = ImageTk.PhotoImage(image=img)
-            self.label.imgtk = imgtk
-            self.label.configure(image=imgtk)
-
-        self.root.after(30, self.update)
-
-    def release(self):
-        self.cap.release()
-
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = CameraFeed(root)
-    root.protocol("WM_DELETE_WINDOW", lambda: (app.release(), root.destroy()))
-    root.mainloop()
+            self.last_scan = (data, now)
+            self.on_scan(data)
