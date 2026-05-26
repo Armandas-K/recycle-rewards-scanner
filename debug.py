@@ -1,15 +1,21 @@
 import tkinter as tk
 from camera import CameraFeed
 from scanner import BarcodeScanner
+from utils.barcode_lookup import lookup
 
 # camera stream url, must be on same wi-fi
 # using "IP Webcam" on playstore
 STREAM_URL = "http://192.168.1.196:8080/video"
 
 def on_scan(barcode):
-    print(f"[DEBUG] Barcode detected: {barcode}")
-    print(f"[DEBUG] Length: {len(barcode)} chars")
-    # TODO: print whether barcode is in cache
+    print(f"\n[DEBUG] Barcode: {barcode}")
+    result = lookup(barcode)
+
+    if result["found"]:
+        print(f"[DEBUG] Product:  {result['name']}")
+        print(f"[DEBUG] Category: {result['category']}")
+    else:
+        print(f"[DEBUG] Not in Open Food Facts - flagged for review")
 
 
 if __name__ == "__main__":

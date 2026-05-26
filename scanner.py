@@ -1,16 +1,23 @@
 from pyzbar.pyzbar import decode
+from utils.validator import is_valid_barcode
 import time
 
 class BarcodeScanner:
     def __init__(self, on_scan):
         self.on_scan = on_scan
-        self.last_scan = ("", 0)
-        self.cooldown = 3  # seconds before same barcode triggers again
+        self.last_scan = ("", 0) # barcode, timestamp
+        self.cooldown = 5  # seconds before same barcode triggers again
 
     def process_frame(self, frame):
         barcodes = decode(frame)
         for barcode in barcodes:
             data = barcode.data.decode("utf-8")
+
+            valid, reason = is_valid_barcode(data)
+            if not valid:
+                print(f"[IGNORED] {data} — {reason}")
+                continue
+
             now = time.time()
 
             # ignore repeated scans of same barcode within cooldown
