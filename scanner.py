@@ -1,5 +1,6 @@
 from pyzbar.pyzbar import decode
 from utils.validator import is_valid_barcode
+from utils.barcode_lookup import normalise
 import time
 
 class BarcodeScanner:
@@ -12,6 +13,7 @@ class BarcodeScanner:
         barcodes = decode(frame)
         for barcode in barcodes:
             data = barcode.data.decode("utf-8")
+            data = normalise(data)
 
             valid, reason = is_valid_barcode(data)
             if not valid:
