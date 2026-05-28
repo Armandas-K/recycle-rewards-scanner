@@ -1,8 +1,23 @@
 import urllib.request
 import json
+import pandas as pd
+import os
 
 BASE_URL = "https://world.openfoodfacts.org/api/v0/product"
+CACHE_FILE = "cache/filtered_barcodes.csv"
 TIMEOUT = 3
+
+def _load_cache() -> set:
+    if not os.path.exists(CACHE_FILE):
+        print("[LOOKUP] Cache file not found, run build_cache.py first")
+        return set()
+    df = pd.read_csv(CACHE_FILE, usecols=["code"], dtype=str)
+    return set(df["code"].dropna().str.strip())
+
+_CACHE: set = _load_cache()
+
+def is_in_cache(barcode: str) -> bool:
+    return barcode in _CACHE
 
 def lookup(barcode: str) -> dict:
     # returns dict with keys:
