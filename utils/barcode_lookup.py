@@ -11,7 +11,6 @@ def lookup(barcode: str) -> dict:
     # category str
     # flagged bool - true if not found with api, needs manual review
 
-    barcode = normalise(barcode)
     url = f"{BASE_URL}/{barcode}.json"
     try:
         with urllib.request.urlopen(url, timeout=TIMEOUT) as response:
@@ -36,6 +35,3 @@ def lookup(barcode: str) -> dict:
         "category": "Unknown",
         "flagged":  True
     }
-
-def normalise(barcode: str) -> str:
-    return barcode.zfill(13) if len(barcode) == 12 else barcode
