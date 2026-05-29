@@ -1,6 +1,6 @@
 import tkinter as tk
-from camera import CameraFeed
-from scanner import BarcodeScanner
+from core.camera import CameraFeed
+from core.scanner import BarcodeScanner
 from utils.barcode_lookup import is_in_cache, lookup
 
 def on_scan(barcode):
