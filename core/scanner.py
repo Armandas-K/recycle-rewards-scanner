@@ -1,4 +1,4 @@
-from pyzbar.pyzbar import decode
+from pyzbar.pyzbar import decode, ZBarSymbol
 from utils.validator import is_valid_barcode
 import time
 
@@ -9,7 +9,7 @@ class BarcodeScanner:
         self.cooldown = 5  # seconds before same barcode triggers again
 
     def process_frame(self, frame):
-        barcodes = decode(frame)
+        barcodes = decode(frame, symbols=[ZBarSymbol.EAN13, ZBarSymbol.EAN8, ZBarSymbol.UPCA])
         for barcode in barcodes:
             data = barcode.data.decode("utf-8")
 

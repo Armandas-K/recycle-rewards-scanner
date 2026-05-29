@@ -27,8 +27,9 @@ def on_scan(barcode):
 
 if __name__ == "__main__":
     root = tk.Tk()
+    qr_display = QRDisplay(root)
     scanner = BarcodeScanner(on_scan=on_scan)
     feed = CameraFeed(root, source=STREAM_URL, on_frame=scanner.process_frame)
-    qr_display = QRDisplay(root)
+
     root.protocol("WM_DELETE_WINDOW", lambda: (feed.release(), root.destroy()))
     root.mainloop()
