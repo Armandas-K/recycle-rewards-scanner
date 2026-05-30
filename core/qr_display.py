@@ -1,4 +1,5 @@
-import qrcode
+from qrcode.main import QRCode
+from qrcode.constants import ERROR_CORRECT_L
 import tkinter as tk
 from PIL import ImageTk
 
@@ -24,8 +25,8 @@ class QRDisplay:
         else:
             self._window.deiconify()
 
-        qr = qrcode.QRCode(
-            error_correction=qrcode.constants.ERROR_CORRECT_L,
+        qr = QRCode(
+            error_correction=ERROR_CORRECT_L,
             box_size=10,
             border=4
         )
