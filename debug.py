@@ -46,13 +46,17 @@ def on_checkout():
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = App(root, on_checkout=on_checkout)
+    app = App(root, on_checkout=on_checkout, fullscreen=False)
 
     camera_window = tk.Toplevel(root)
     camera_window.title("Camera Feed Debug")
 
+    # position feed in top-right corner
+    screen_w = root.winfo_screenwidth()
+    camera_window.geometry(f"+{screen_w - 400}+0")
+
     scanner = BarcodeScanner(on_scan=on_scan)
-    feed = CameraFeed(camera_window, source=STREAM_URL, on_frame=scanner.process_frame, display=True)
+    feed = CameraFeed(camera_window, source=STREAM_URL, on_frame=scanner.process_frame, display=True, display_scale=0.35)
 
     # make ui frame in focus so esc works
     root.lift()

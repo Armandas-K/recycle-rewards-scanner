@@ -5,11 +5,15 @@ from ui.screens.qr_screen import QRScreen
 
 
 class App:
-    def __init__(self, root: tk.Tk, on_checkout=None):
+    def __init__(self, root: tk.Tk, on_checkout=None, fullscreen: bool = True):
         self.root = root
         self.root.title("Recycle Rewards")
-        self.root.attributes("-fullscreen", True)
-        self.root.bind("<Escape>", lambda e: self.root.attributes("-fullscreen", False))
+
+        if fullscreen:
+            self.root.attributes("-fullscreen", True)
+            self.root.bind("<Escape>", lambda e: self.root.attributes("-fullscreen", False))
+        else:
+            self.root.geometry("1000x700")
 
         self._on_checkout = on_checkout
 

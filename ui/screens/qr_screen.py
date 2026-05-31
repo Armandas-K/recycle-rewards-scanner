@@ -14,7 +14,7 @@ class QRScreen(tk.Frame):
     def _build(self):
         tk.Label(
             self,
-            text="SCAN QR CODE FOR POINTS",
+            text="SCAN QR CODE FOR POINTS\nOR PRINT VOUCHER",
             font=FONT_HEADING,
             bg=BG, fg=TEXT
         ).pack(pady=(60, 0))
