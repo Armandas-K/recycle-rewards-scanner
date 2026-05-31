@@ -1,35 +1,42 @@
 import pandas as pd
-import json
 import os
 
 CSV_PATH = "raw/openfoodfacts_export.csv"
 OUTPUT_PATH = "cache/filtered_barcodes.csv"
 
-PLASTIC_BOTTLE_TAGS = {
-    "en:pet-bottle",
-    "en:pet-1-polyethylene-terephthalate",
-    "en:mixed-plastic-bottle",
-    "en:plastic-bottle",
-    "en:hdpe-bottle",
-    "en:hdpe-2-high-density-polyethylene",
+PLASTIC_BOTTLE_SUFFIXES = {
+    "pet-bottle",
+    "pet-1-polyethylene-terephthalate",
+    "mixed-plastic-bottle",
+    "plastic-bottle",
+    "bottle-plastic",
+    "hdpe-bottle",
+    "hdpe-2-high-density-polyethylene",
+    "pp-bottle",
+    "pet-transparent",
 }
 
-CAN_TAGS = {
-    "en:can",
-    "en:aluminium",
-    "en:aluminium-unknown",
-    "en:aluminium-can",
-    "en:steel-can",
-    "en:metal-can",
+CAN_SUFFIXES = {
+    "can", # maybe too broad
+    "aluminium", # to catch fr:canette-aluminium
+    "aluminium-can",
+    "aluminium-tin",
+    "metal-can",
+    "canned",
+    "drink-can",
 }
 
-ACCEPTED_TAGS = PLASTIC_BOTTLE_TAGS | CAN_TAGS
+ACCEPTED_SUFFIXES = PLASTIC_BOTTLE_SUFFIXES | CAN_SUFFIXES
 
 def is_accepted_container(packaging_tags: str) -> bool:
     if not isinstance(packaging_tags, str):
         return False
-    tags = {t.strip() for t in packaging_tags.split(",")}
-    return bool(tags & ACCEPTED_TAGS)
+    tags = [t.strip() for t in packaging_tags.split(",")]
+    return any(
+        tag.endswith(suffix)
+        for tag in tags
+        for suffix in ACCEPTED_SUFFIXES
+    )
 
 def build_cache():
     print("Reading CSV...")
