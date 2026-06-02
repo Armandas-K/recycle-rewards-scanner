@@ -8,6 +8,11 @@ from utils.barcode_lookup import is_in_cache, lookup
 # camera stream url, must be on same wi-fi
 # using "IP Webcam" on playstore
 STREAM_URL = "http://192.168.1.196:8080/video"
+
+# set to 0 for webcam, change index if wrong camera is selected
+CAMERA_SOURCE = STREAM_URL
+#CAMERA_SOURCE = 0
+
 POINTS_PER_BOTTLE = 5
 
 session = ScanSession()
@@ -56,7 +61,7 @@ if __name__ == "__main__":
     camera_window.geometry(f"+{screen_w - 400}+0")
 
     scanner = BarcodeScanner(on_scan=on_scan)
-    feed = CameraFeed(camera_window, source=STREAM_URL, on_frame=scanner.process_frame, display=True, display_scale=0.35)
+    feed = CameraFeed(camera_window, source=CAMERA_SOURCE, on_frame=scanner.process_frame, display=True, display_scale=0.35)
 
     # make ui frame in focus so esc works
     root.lift()
