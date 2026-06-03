@@ -31,6 +31,7 @@ A barcode scanning application that rewards users with points for recycling plas
 | qrcode        | 8.2       |
 | requests      | 2.34.2    |
 | numpy         | 2.4.6     |
+| pytest        | 9.0.3     |
 
 ### pip
 
@@ -83,3 +84,15 @@ python main.py
 ```
 
 Production entry point using the built-in webcam. Backend API communication not yet implemented.
+
+### Tests *(WIP)*
+
+```bash
+pytest tests/
+```
+
+Optionally use verbose option
+
+```bash
+pytest tests/ -v
+```
