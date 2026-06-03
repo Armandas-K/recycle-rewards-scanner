@@ -5,7 +5,7 @@ import cv2
 @pytest.fixture
 def barcode_frame():
     # photo of a scannable barcode
-    frame = cv2.imread("tests/data/barcodes/barcode.jpg")
+    frame = cv2.imread("data/barcodes/barcode_1.jpg")
     assert frame is not None, "Add a barcode photo to tests/data/barcodes/"
     return frame
 
