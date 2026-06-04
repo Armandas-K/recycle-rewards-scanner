@@ -3,19 +3,10 @@ import pandas as pd
 import cv2
 
 @pytest.fixture
-def barcode_frame():
-    # photo of a scannable barcode
-    frame = cv2.imread("data/barcodes/barcode_1.jpg")
-    assert frame is not None, "Add a barcode photo to tests/data/barcodes/"
-    return frame
-
-
-@pytest.fixture
 def blank_frame():
     # plain white frame - no response from scanner
     import numpy as np
     return np.ones((480, 640, 3), dtype="uint8") * 255
-
 
 @pytest.fixture
 def sample_cache_df():

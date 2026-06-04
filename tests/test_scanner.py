@@ -1,5 +1,6 @@
 import time
 import pytest
+import cv2
 from unittest.mock import patch, MagicMock
 from core.scanner import BarcodeScanner
 
@@ -8,6 +9,8 @@ VALID_BARCODE_B = "5449000276018"
 INVALID_BARCODE_A = "1234567" # wrong length
 INVALID_BARCODE_B = "5000193034550" # bad checksum
 
+# Helper
+
 def make_mock_barcode(barcode_string: str):
     mock = MagicMock()
     mock.data = barcode_string.encode()
@@ -15,11 +18,20 @@ def make_mock_barcode(barcode_string: str):
 
 # Frame Detection
 
-def test_real_barcode_frame_triggers_callback(barcode_frame):
-    # photo of a barcode should trigger on_scan once
+@pytest.mark.parametrize("image_path", [
+    "data/barcodes/barcode_1.jpg",
+    "data/barcodes/barcode_2.jpg",
+    "data/barcodes/barcode_3.jpg",
+])
+def test_real_barcode_frame_triggers_callback(image_path):
+    # test 3 different barcode photos
+    frame = cv2.imread(image_path)
+    assert frame is not None, f"Test image not found: {image_path}"
+
     scanned = []
     scanner = BarcodeScanner(on_scan=lambda b: scanned.append(b))
-    scanner.process_frame(barcode_frame)
+    scanner.process_frame(frame)
+
     assert len(scanned) == 1
 
 def test_blank_frame_does_not_trigger_callback(blank_frame):
