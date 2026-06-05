@@ -1,37 +1,46 @@
 import requests
-import os
 
-BASE_URL = os.getenv("API_URL", "http://localhost:3000")
+BASE_URL = "http://localhost:3000"
+BIN_ID = "bin_01"
+# API_KEY = "secret"
 
-def checkout(barcodes: list[str]) -> dict:
-    # POST scanned barcodes to backend
-    # returns: { token: str, redeem_url: str }
+
+def get_user(uid: str) -> dict:
+    # GET user info by NFC UID
+    # returns: { found: bool, name: str, language: str, points: int }
     # skeleton - endpoint not implemented on website yet
     # maybe add auth header using api keys?
     try:
+        response = requests.get(
+            f"{BASE_URL}/api/nfc/{uid}",
+            # api key could go here
+            timeout=5
+        )
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as e:
+        print(f"[API] get_user failed: {e}")
+        return {"found": False, "name": "User", "language": "en", "points": 0}
+
+
+def checkout(uid: str, bottles: int, points: int) -> dict:
+    # POST checkout - awards points directly to user account
+    # returns: { success: bool }
+    # skeleton - endpoint not yet implemented on website
+    try:
         response = requests.post(
             f"{BASE_URL}/api/checkout",
-            json={"barcodes": barcodes},
+            # api key could go here
+            json={
+                "uid": uid,
+                "bottles": bottles,
+                "points": points,
+                "bin_id": BIN_ID,
+            },
             timeout=5
         )
         response.raise_for_status()
         return response.json()
     except requests.RequestException as e:
         print(f"[API] Checkout failed: {e}")
-        return {}
-
-
-def get_transaction_status(token: str) -> str:
-    # GET status of a pending transaction.
-    # returns: 'pending'/'redeemed'/'expired'
-    # skeleton - endpoint not implemented on website yet
-    try:
-        response = requests.get(
-            f"{BASE_URL}/api/transactions/{token}/status",
-            timeout=5
-        )
-        response.raise_for_status()
-        return response.json().get("status", "pending")
-    except requests.RequestException as e:
-        print(f"[API] Status check failed: {e}")
-        return "pending"
+        return {"success": False}

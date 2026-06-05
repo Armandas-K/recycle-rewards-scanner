@@ -28,24 +28,34 @@ HTML = """
 <!DOCTYPE html>
 <html>
 <body>
-    <h2>NFC Reader Active</h2>
-    <p id="status">Waiting for tap...</p>
+    <h2>NFC Reader</h2>
+    <button id="btn" style="padding:20px;font-size:20px">Start Scanning</button>
+    <p id="status">Press button to begin</p>
     <script>
-        const status = document.getElementById('status');
-        async function startNFC() {
-            const reader = new NDEFReader();
-            await reader.scan();
-            reader.onreading = e => {
-                const uid = e.serialNumber;
-                status.textContent = 'Read: ' + uid;
-                fetch('/nfc', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ uid: uid })
-                });
-            };
-        }
-        startNFC();
+        document.getElementById('btn').addEventListener('click', async () => {
+            try {
+                const reader = new NDEFReader();
+                await reader.scan();
+                document.getElementById('status').textContent = 'Waiting for tap...';
+
+                reader.onreading = e => {
+                    const uid = e.serialNumber;
+                    document.getElementById('status').textContent = 'Read: ' + uid;
+                    fetch('/nfc', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ uid: uid })
+                    });
+                };
+
+                reader.onerror = e => {
+                    document.getElementById('status').textContent = 'NFC error: ' + e.message;
+                };
+
+            } catch (err) {
+                document.getElementById('status').textContent = 'Failed: ' + err.message;
+            }
+        });
     </script>
 </body>
 </html>
