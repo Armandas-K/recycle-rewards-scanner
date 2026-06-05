@@ -1,3 +1,5 @@
+import queue
+import threading
 from flask import Flask, request, render_template_string
 
 # READ ME!!!!!!!!!!!!!!!!!!!!!!
@@ -18,11 +20,13 @@ adb start-server
 adb devices
 '''
 # 7. run command "adb reverse tcp:5000 tcp:5000"
-# 8. run this python script
+# 8. run debug
 # 9. on phone run "localhost:5000" in Chrome
 # 10. scan with NDEF format NFC (not low freq RFID and not debit cards (EMV format))
 
-app = Flask(__name__)
+nfc_queue: queue.Queue = queue.Queue()
+
+_app = Flask(__name__)
 
 HTML = """
 <!DOCTYPE html>
@@ -61,16 +65,16 @@ HTML = """
 </html>
 """
 
-@app.route('/')
+@_app.route('/')
 def index():
     return render_template_string(HTML)
 
-@app.route('/nfc', methods=['POST'])
+@_app.route('/nfc', methods=['POST'])
 def receive_nfc():
     uid = request.json.get('uid')
     print(f"[NFC] UID received: {uid}")
-    # TODO: forward uid to backend
+    nfc_queue.put(uid)
     return {'status': 'ok'}
 
-if __name__ == '__main__':
-    app.run(port=5000)
+def start():
+    threading.Thread(target=lambda: _app.run(port=5000), daemon=True).start()
