@@ -1,9 +1,10 @@
 import tkinter as tk
 import queue
+import threading
 
 from ui.app import App
 from api.session import ScanSession
-from api.client import get_user
+from api.client import get_user, checkout
 from core.camera import CameraFeed
 from core.scanner import BarcodeScanner
 from utils.barcode_lookup import is_in_cache, lookup
@@ -18,26 +19,56 @@ CAMERA_SOURCE = STREAM_URL
 #CAMERA_SOURCE = 0
 
 POINTS_PER_BOTTLE = 5
+INACTIVITY_TIMEOUT = 30_000  # ms - checkout triggered after no scan for 30 seconds
 
 session = ScanSession()
+_inactivity_job  = None
+
+# Inactivity timer
+
+def reset_inactivity_timer():
+    global _inactivity_job
+    if _inactivity_job:
+        root.after_cancel(_inactivity_job)
+    _inactivity_job = root.after(INACTIVITY_TIMEOUT, _on_inactivity)
+
+def cancel_inactivity_timer():
+    global _inactivity_job
+    if _inactivity_job:
+        root.after_cancel(_inactivity_job)
+        _inactivity_job = None
+
+def _on_inactivity():
+    global _inactivity_job
+    _inactivity_job = None
+    if session.active:
+        print("[INACTIVITY] No scan for 30 seconds - checking out")
+        app.go_loading()
 
 # NFC event handler (main thread)
 
 def on_nfc_tap(uid: str):
     if not session.active:
+        # first tap
         user = get_user(uid)
+        if not user.get("found"):
+            print(f"[NFC] User not found for UID: {uid} - using defaults")
         session.start(uid, user)
+        reset_inactivity_timer()
         app.go_welcome(user.get("name", "User"))
 
     elif uid == session.uid:
         # same user taps again - checkout
-        on_checkout()
+        app.go_loading()
 
     else:
         # different user - checkout current then welcome new
         on_checkout()
         user = get_user(uid)
+        if not user.get("found"):
+            print(f"[NFC] User not found for UID: {uid} - using defaults")
         session.start(uid, user)
+        reset_inactivity_timer()
         app.go_welcome(user.get("name", "User"))
 
 def poll_nfc():
@@ -47,6 +78,13 @@ def poll_nfc():
     except queue.Empty:
         pass
     root.after(100, poll_nfc)
+
+def console_nfc_input():
+    # type a uid in the console to simulate an nfc tap (for easier testing)
+    while True:
+        uid = input().strip()
+        if uid:
+            nfc_queue.put(uid)
 
 # Scanning
 
@@ -68,10 +106,13 @@ def on_scan(barcode):
 
     if in_cache or result["found"]:
         session.add(barcode)
+        reset_inactivity_timer()
         app.scanning.update_count(session.count)
         app.scanning.update_points(session.count * POINTS_PER_BOTTLE)
 
 def on_checkout():
+    cancel_inactivity_timer()
+
     bottles = session.count
     points = bottles * POINTS_PER_BOTTLE
     uid = session.uid
@@ -79,11 +120,13 @@ def on_checkout():
 
     print(f"[CHECKOUT] {bottles} bottle(s), {points} points for {name} ({uid})")
 
-    # TODO: replace with real API call once backend is ready
-    # checkout(uid, bottles, points)
+    result = checkout(uid, bottles, points)
+    if result.get("success"):
+        print(f"[CHECKOUT] Success")
+    else:
+        print(f"[CHECKOUT] Failed or backend not available")
 
     session.clear()
-    app.go_loading()
     root.after(2000, app.go_idle)
 
 if __name__ == "__main__":
@@ -97,7 +140,10 @@ if __name__ == "__main__":
     screen_w = root.winfo_screenwidth()
     camera_window.geometry(f"+{screen_w - 400}+0")
 
+    # nfc tap thread
     start_nfc()
+    # console input nfc thread
+    threading.Thread(target=console_nfc_input, daemon=True).start()
 
     scanner = BarcodeScanner(on_scan=on_scan)
     feed = CameraFeed(camera_window, source=CAMERA_SOURCE, on_frame=scanner.process_frame, display=True, display_scale=0.35)

@@ -23,21 +23,6 @@ class ScanningScreen(tk.Frame):
         self._points_label = tk.Label(center, text="0", font=FONT_COUNTER, bg=BG, fg=ACCENT)
         self._points_label.pack()
 
-        bottom = tk.Frame(self, bg=BG)
-        bottom.pack(fill=tk.X, padx=40, pady=40)
-
-        tk.Button(
-            bottom,
-            text="CHECKOUT",
-            font=FONT_BUTTON,
-            bg=ACCENT,
-            fg=BTN_TEXT,
-            padx=20, pady=12,
-            relief=tk.FLAT,
-            cursor="hand2",
-            command=self.app.go_loading
-        ).pack(side=tk.RIGHT)
-
     def update_count(self, count: int):
         self._bottle_label.configure(text=str(count))
 
