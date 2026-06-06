@@ -28,7 +28,7 @@ class App:
     def show(self, screen):
         if self._current and hasattr(self._current, "on_hide"):
             self._current.on_hide()
-        for s in [self.idle, self.welcome, self.scanning, self.loading, self.qr]:
+        for s in [self.idle, self.welcome, self.scanning, self.loading]:
             s.pack_forget()
         screen.pack(fill=tk.BOTH, expand=True)
         if hasattr(screen, "on_show"):

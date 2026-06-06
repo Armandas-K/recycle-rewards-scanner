@@ -7,7 +7,7 @@ from api.session import ScanSession
 from api.client import get_user, checkout
 from core.camera import CameraFeed
 from core.scanner import BarcodeScanner
-from utils.barcode_lookup import is_in_cache, lookup
+from utils.barcode_lookup import is_in_cache, lookup, get_container_type
 from utils.nfc_reader import nfc_queue, start as start_nfc
 
 # camera stream url, must be on same wi-fi
@@ -18,7 +18,8 @@ STREAM_URL = "http://192.168.1.196:8080/video"
 CAMERA_SOURCE = STREAM_URL
 #CAMERA_SOURCE = 0
 
-POINTS_PER_BOTTLE = 5
+POINTS_PER_BOTTLE = 3
+POINTS_PER_CAN = 5
 INACTIVITY_TIMEOUT = 30_000  # ms - checkout triggered after no scan for 30 seconds
 
 session = ScanSession()
@@ -105,27 +106,32 @@ def on_scan(barcode):
         print(f"[DEBUG] Not in Open Food Facts - flagged for review")
 
     if in_cache or result["found"]:
-        session.add(barcode)
+        container_type = get_container_type(barcode) if in_cache else "bottle"
+        print(f"[DEBUG] Container type: {container_type}")
+
+        session.add(barcode, container_type)
         reset_inactivity_timer()
 
         if app._current == app.welcome:
             app.go_scanning()
 
-        app.scanning.update_count(session.count)
-        app.scanning.update_points(session.count * POINTS_PER_BOTTLE)
+        points = (session.bottle_count * POINTS_PER_BOTTLE) + (session.can_count * POINTS_PER_CAN)
+        app.scanning.update_counts(session.bottle_count, session.can_count)
+        app.scanning.update_points(points)
 
 def on_checkout():
     cancel_inactivity_timer()
 
-    bottles = session.count
-    points = bottles * POINTS_PER_BOTTLE
+    bottles = session.bottle_count
+    cans = session.can_count
+    points = (bottles * POINTS_PER_BOTTLE) + (cans * POINTS_PER_CAN)
     uid = session.uid
     name = session.user.get("name")
 
-    print(f"[CHECKOUT] {bottles} bottle(s), {points} points for {name} ({uid})")
+    print(f"[CHECKOUT] {bottles} bottle(s), {cans} can(s), {points} points for {name} ({uid})")
 
-    if bottles > 0:
-        result = checkout(uid, bottles, points)
+    if bottles > 0 or cans > 0:
+        result = checkout(uid, bottles, cans, points)
         if result.get("success"):
             print(f"[CHECKOUT] Success")
         else:
