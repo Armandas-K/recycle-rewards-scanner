@@ -107,6 +107,10 @@ def on_scan(barcode):
     if in_cache or result["found"]:
         session.add(barcode)
         reset_inactivity_timer()
+
+        if app._current == app.welcome:
+            app.go_scanning()
+
         app.scanning.update_count(session.count)
         app.scanning.update_points(session.count * POINTS_PER_BOTTLE)
 
@@ -120,11 +124,12 @@ def on_checkout():
 
     print(f"[CHECKOUT] {bottles} bottle(s), {points} points for {name} ({uid})")
 
-    result = checkout(uid, bottles, points)
-    if result.get("success"):
-        print(f"[CHECKOUT] Success")
-    else:
-        print(f"[CHECKOUT] Failed or backend not available")
+    if bottles > 0:
+        result = checkout(uid, bottles, points)
+        if result.get("success"):
+            print(f"[CHECKOUT] Success")
+        else:
+            print(f"[CHECKOUT] Failed or backend not available")
 
     session.clear()
     root.after(2000, app.go_idle)

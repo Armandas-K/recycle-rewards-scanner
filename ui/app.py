@@ -3,8 +3,6 @@ from ui.screens.idle import IdleScreen
 from ui.screens.welcome import WelcomeScreen
 from ui.screens.scanning import ScanningScreen
 from ui.screens.loading import LoadingScreen
-from ui.screens.qr_screen import QRScreen
-
 
 class App:
     def __init__(self, root: tk.Tk, on_checkout=None, fullscreen: bool = True):
@@ -23,7 +21,6 @@ class App:
         self.welcome = WelcomeScreen(root, app=self)
         self.scanning = ScanningScreen(root, app=self)
         self.loading = LoadingScreen(root, app=self)
-        self.qr = QRScreen(root, app=self)
 
         self._current = None
         self.show(self.idle)
@@ -44,7 +41,7 @@ class App:
     def go_welcome(self, name: str):
         self.welcome.set_user(name)
         self.show(self.welcome)
-    # legacy
+
     def go_scanning(self):
         self.show(self.scanning)
 
@@ -52,7 +49,3 @@ class App:
         self.show(self.loading)
         if self._on_checkout:
             self._on_checkout()
-    # legacy
-    def go_qr(self, qr_data: str):
-        self.qr.set_qr(qr_data)
-        self.show(self.qr)

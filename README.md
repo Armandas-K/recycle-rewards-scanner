@@ -28,15 +28,15 @@ A barcode scanning application that rewards users with points for recycling plas
 | pandas        | 3.0.3     |
 | Pillow        | 12.2.0    |
 | pyzbar        | 0.1.9     |
-| qrcode        | 8.2       |
 | requests      | 2.34.2    |
 | numpy         | 2.4.6     |
 | pytest        | 9.0.3     |
+| flask         | 3.1.3     |
 
 ### pip
 
 ```bash
-pip install opencv-python pandas Pillow pyzbar qrcode requests numpy
+pip install opencv-python pandas Pillow pyzbar requests numpy pytest flask
 ```
 
 ---
@@ -89,10 +89,4 @@ Production entry point using the built-in webcam. Backend API communication not 
 
 ```bash
 pytest tests/
-```
-
-Optionally use verbose option
-
-```bash
-pytest tests/ -v
 ```
