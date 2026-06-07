@@ -2,7 +2,10 @@ import time
 import pytest
 import cv2
 from unittest.mock import patch, MagicMock
+from pathlib import Path
 from core.scanner import BarcodeScanner
+
+_DATA_DIR = Path(__file__).parent / "data" / "barcodes"
 
 VALID_BARCODE_A = "5000193034559"
 VALID_BARCODE_B = "5449000276018"
@@ -19,9 +22,9 @@ def make_mock_barcode(barcode_string: str):
 # Frame Detection
 
 @pytest.mark.parametrize("image_path", [
-    "data/barcodes/barcode_1.jpg",
-    "data/barcodes/barcode_2.jpg",
-    "data/barcodes/barcode_3.jpg",
+    str(_DATA_DIR / "barcode_1.jpg"),
+    str(_DATA_DIR / "barcode_2.jpg"),
+    str(_DATA_DIR / "barcode_3.jpg"),
 ])
 def test_real_barcode_frame_triggers_callback(image_path):
     # test 3 different barcode photos

@@ -56,11 +56,14 @@ def test_empty_cache_always_returns_false():
 def test_load_cache_reads_codes_correctly(tmp_path):
     # _load_cache should read codes from CSV into a set
     csv_file = tmp_path / "filtered_barcodes.csv"
-    pd.DataFrame({"code": [BARCODE_IN_CACHE, BARCODE_API_ONLY]}).to_csv(csv_file, index=False)
+    pd.DataFrame({
+        "code": [BARCODE_IN_CACHE, BARCODE_API_ONLY],
+        "packaging_tags": ["en:aluminium", "en:pet-bottle"]
+    }).to_csv(csv_file, index=False)
 
     with patch("utils.barcode_lookup.CACHE_FILE", str(csv_file)):
         from utils.barcode_lookup import _load_cache
-        cache = _load_cache()
+        cache, type_map = _load_cache()
 
     assert BARCODE_IN_CACHE in cache
     assert BARCODE_API_ONLY in cache
@@ -68,17 +71,21 @@ def test_load_cache_reads_codes_correctly(tmp_path):
 def test_load_cache_missing_file_returns_empty_set(tmp_path):
     with patch("utils.barcode_lookup.CACHE_FILE", str(tmp_path / "nonexistent.csv")):
         from utils.barcode_lookup import _load_cache
-        cache = _load_cache()
+        cache, type_map = _load_cache()
 
     assert cache == set()
+    assert type_map == {}
 
 def test_load_cache_drops_null_codes(tmp_path):
     csv_file = tmp_path / "filtered_barcodes.csv"
-    pd.DataFrame({"code": [BARCODE_IN_CACHE, None]}).to_csv(csv_file, index=False)
+    pd.DataFrame({
+        "code": [BARCODE_IN_CACHE, None],
+        "packaging_tags": ["en:aluminium", "en:aluminium"]
+    }).to_csv(csv_file, index=False)
 
     with patch("utils.barcode_lookup.CACHE_FILE", str(csv_file)):
         from utils.barcode_lookup import _load_cache
-        cache = _load_cache()
+        cache, type_map = _load_cache()
 
     assert None not in cache
     assert len(cache) == 1
