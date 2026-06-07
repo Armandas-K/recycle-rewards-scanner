@@ -18,7 +18,7 @@ def get_user(uid: str) -> dict:
         return response.json()
     except requests.RequestException as e:
         print(f"[API] get_user failed: {e}")
-        return {"found": False, "name": "User", "language": "pl", "points": 0}
+        return {"found": False, "name": "User", "language": "en", "points": 0}
 
 def checkout(uid: str, bottles: int, cans: int, points: int) -> dict:
     # POST checkout - awards points directly to user account
