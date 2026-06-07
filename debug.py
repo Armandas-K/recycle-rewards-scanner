@@ -7,8 +7,8 @@ from api.session import ScanSession
 from api.client import get_user, checkout
 from core.camera import CameraFeed
 from core.scanner import BarcodeScanner
+from core.nfc_reader import nfc_queue, start as start_nfc
 from utils.barcode_lookup import is_in_cache, lookup, get_container_type
-from utils.nfc_reader import nfc_queue, start as start_nfc
 
 # camera stream url, must be on same wi-fi
 # using "IP Webcam" on playstore
@@ -56,7 +56,7 @@ def on_nfc_tap(uid: str):
             print(f"[NFC] User not found for UID: {uid} - using defaults")
         session.start(uid, user)
         reset_inactivity_timer()
-        app.go_welcome(user.get("name", "User"))
+        app.go_welcome(user.get("name", "User"), user.get("language", "en"))
 
     elif uid == session.uid:
         # same user taps again - checkout
@@ -70,7 +70,7 @@ def on_nfc_tap(uid: str):
             print(f"[NFC] User not found for UID: {uid} - using defaults")
         session.start(uid, user)
         reset_inactivity_timer()
-        app.go_welcome(user.get("name", "User"))
+        app.go_welcome(user.get("name", "User"), user.get("language", "en"))
 
 def poll_nfc():
     try:

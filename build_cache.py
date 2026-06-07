@@ -2,7 +2,7 @@ import pandas as pd
 import os
 
 CSV_PATH = "raw/openfoodfacts_export.csv"
-OUTPUT_PATH = "cache/filtered_barcodes.csv"
+OUTPUT_PATH = "data/cache/filtered_barcodes.csv"
 
 PLASTIC_BOTTLE_SUFFIXES = {
     "pet-bottle",
@@ -52,7 +52,7 @@ def build_cache():
     # apply mask to packaging tags
     filtered = df[df["packaging_tags"].apply(is_accepted_container)]
 
-    os.makedirs("cache", exist_ok=True)
+    os.makedirs("data/cache", exist_ok=True)
     filtered.to_csv(OUTPUT_PATH, index=False)
 
     size_kb = os.path.getsize(OUTPUT_PATH) / 1024

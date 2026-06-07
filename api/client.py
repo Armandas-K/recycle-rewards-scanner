@@ -7,7 +7,6 @@ BIN_ID = "0"
 def get_user(uid: str) -> dict:
     # GET user info by NFC UID
     # returns: { found: bool, name: str, language: str, points: int }
-    # skeleton - endpoint not implemented on website yet
     # maybe add auth header using api keys?
     try:
         response = requests.get(
@@ -19,12 +18,11 @@ def get_user(uid: str) -> dict:
         return response.json()
     except requests.RequestException as e:
         print(f"[API] get_user failed: {e}")
-        return {"found": False, "name": "User", "language": "en", "points": 0}
+        return {"found": False, "name": "User", "language": "pl", "points": 0}
 
 def checkout(uid: str, bottles: int, cans: int, points: int) -> dict:
     # POST checkout - awards points directly to user account
     # returns: { success: bool }
-    # skeleton - endpoint not yet implemented on website
     try:
         response = requests.post(
             f"{BASE_URL}/api/v1/checkout",

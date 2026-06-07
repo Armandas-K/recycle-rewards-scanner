@@ -35,10 +35,16 @@ class App:
             screen.on_show()
         self._current = screen
 
+    def _set_language(self, language: str):
+        for screen in [self.welcome, self.scanning, self.loading]:
+            screen.set_language(language)
+
     def go_idle(self):
+        self._set_language("en")
         self.show(self.idle)
 
-    def go_welcome(self, name: str):
+    def go_welcome(self, name: str, language: str = "en"):
+        self._set_language(language)
         self.welcome.set_user(name)
         self.show(self.welcome)
 

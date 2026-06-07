@@ -1,0 +1,82 @@
+{
+  "en": {
+    "welcome": {
+      "greeting": "Hello, {name}",
+      "subtitle": "Start scanning bottles to earn points"
+    },
+    "scanning": {
+      "heading": "INSERT BOTTLES OR CANS",
+      "bottles": "bottles",
+      "cans": "cans",
+      "points": "points earned"
+    },
+    "loading": {
+      "heading": "Processing",
+      "subtitle": "Please wait"
+    }
+  },
+  "ur": {
+    "welcome": {
+      "greeting": "آداب، {name}",
+      "subtitle": "پوائنٹس حاصل کرنے کے لیے بوتلیں سکین کریں"
+    },
+    "scanning": {
+      "heading": "بوتلیں یا کین ڈالیں",
+      "bottles": "بوتلیں",
+      "cans": "کین",
+      "points": "حاصل شدہ پوائنٹس"
+    },
+    "loading": {
+      "heading": "پروسیسنگ",
+      "subtitle": "براہ کرم انتظار کریں"
+    }
+  },
+  "pa": {
+    "welcome": {
+      "greeting": "ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ, {name}",
+      "subtitle": "ਪੁਆਇੰਟ ਕਮਾਉਣ ਲਈ ਬੋਤਲਾਂ ਸਕੈਨ ਕਰਨਾ ਸ਼ੁਰੂ ਕਰੋ"
+    },
+    "scanning": {
+      "heading": "ਬੋਤਲਾਂ ਜਾਂ ਕੈਨ ਪਾਓ",
+      "bottles": "ਬੋਤਲਾਂ",
+      "cans": "ਕੈਨ",
+      "points": "ਕਮਾਏ ਪੁਆਇੰਟ"
+    },
+    "loading": {
+      "heading": "ਪ੍ਰੋਸੈਸਿੰਗ",
+      "subtitle": "ਕਿਰਪਾ ਕਰਕੇ ਉਡੀਕ ਕਰੋ"
+    }
+  },
+  "bn": {
+    "welcome": {
+      "greeting": "হ্যালো, {name}",
+      "subtitle": "পয়েন্ট অর্জন করতে বোতল স্ক্যান করা শুরু করুন"
+    },
+    "scanning": {
+      "heading": "বোতল বা ক্যান ঢোকান",
+      "bottles": "বোতল",
+      "cans": "ক্যান",
+      "points": "অর্জিত পয়েন্ট"
+    },
+    "loading": {
+      "heading": "প্রক্রিয়াকরণ",
+      "subtitle": "অনুগ্রহ করে অপেক্ষা করুন"
+    }
+  },
+  "pl": {
+    "welcome": {
+      "greeting": "Cześć, {name}",
+      "subtitle": "Zacznij skanować butelki, aby zdobyć punkty"
+    },
+    "scanning": {
+      "heading": "WRZUĆ BUTELKI LUB PUSZKI",
+      "bottles": "butelki",
+      "cans": "puszki",
+      "points": "zdobyte punkty"
+    },
+    "loading": {
+      "heading": "Przetwarzanie",
+      "subtitle": "Proszę czekać"
+    }
+  }
+}
