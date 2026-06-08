@@ -6,7 +6,7 @@ import os
 from build_cache import CAN_SUFFIXES
 
 BASE_URL = "https://world.openfoodfacts.org/api/v0/product"
-CACHE_FILE = "cache/filtered_barcodes.csv"
+CACHE_FILE = "data/cache/filtered_barcodes.csv"
 TIMEOUT = 3
 
 def _classify_tags(packaging_tags: str) -> str:
