@@ -1,31 +1,126 @@
 import tkinter as tk
+import queue
+
+from ui.app import App
+from api.session import ScanSession
+from api.client import get_user, checkout
 from core.camera import CameraFeed
 from core.scanner import BarcodeScanner
-from utils.barcode_lookup import is_in_cache, lookup
+from core.nfc_reader import nfc_queue, start as start_nfc
+from utils.barcode_lookup import is_in_cache, get_container_type
+
+POINTS_PER_BOTTLE = 3
+POINTS_PER_CAN = 5
+INACTIVITY_TIMEOUT = 30_000 # ms - checkout triggered after no scan for 30 seconds
+
+session = ScanSession()
+_inactivity_job = None
+
+# Inactivity timer
+
+def reset_inactivity_timer():
+    global _inactivity_job
+    if _inactivity_job:
+        root.after_cancel(_inactivity_job)
+    _inactivity_job = root.after(INACTIVITY_TIMEOUT, _on_inactivity)
+
+def cancel_inactivity_timer():
+    global _inactivity_job
+    if _inactivity_job:
+        root.after_cancel(_inactivity_job)
+        _inactivity_job = None
+
+def _on_inactivity():
+    global _inactivity_job
+    _inactivity_job = None
+    if session.active:
+        app.go_loading()
+
+# NFC event handler (main thread)
+
+def on_nfc_tap(uid: str):
+    if not session.active:
+        # first tap
+        user = get_user(uid)
+        if not user.get("found"):
+            return
+        session.start(uid, user)
+        reset_inactivity_timer()
+        app.go_welcome(user.get("name", "User"), user.get("language", "en"))
+
+    elif uid == session.uid:
+        # same user taps again - checkout
+        app.go_loading()
+
+    else:
+        # different user - checkout current then welcome new
+        on_checkout()
+        user = get_user(uid)
+        if not user.get("found"):
+            return
+        session.start(uid, user)
+        reset_inactivity_timer()
+        app.go_welcome(user.get("name", "User"), user.get("language", "en"))
+
+def poll_nfc():
+    try:
+        uid = nfc_queue.get_nowait()
+        on_nfc_tap(uid)
+    except queue.Empty:
+        pass
+    root.after(100, poll_nfc)
+
+# Scanning
 
 def on_scan(barcode):
-    if is_in_cache(barcode):
-        print(f"Valid container: {barcode}")
-        # TODO: generate QR code for user to scan
+    if not session.active:
         return
 
-    # not in local cache - fall back to API
-    result = lookup(barcode)
-    if result["found"] and not result["flagged"]:
-        print(f"Valid via API: {result['name']}")
-        # TODO: generate QR code for user to scan
+    if not is_in_cache(barcode):
         return
 
-    # TODO: show rejection in ui
-    print(f"Invalid Barcode")
+    container_type = get_container_type(barcode)
+    session.add(barcode, container_type)
+    reset_inactivity_timer()
+
+    if app._current == app.welcome:
+        app.go_scanning()
+
+    points = (session.bottle_count * POINTS_PER_BOTTLE) + (session.can_count * POINTS_PER_CAN)
+    app.scanning.update_counts(session.bottle_count, session.can_count)
+    app.scanning.update_points(points)
+
+def on_checkout():
+    cancel_inactivity_timer()
+
+    bottles = session.bottle_count
+    cans = session.can_count
+    points = (bottles * POINTS_PER_BOTTLE) + (cans * POINTS_PER_CAN)
+    uid = session.uid
+    name = session.user.get("name")
+
+    print(f"[CHECKOUT] {bottles} bottle(s), {cans} can(s), {points} points for {name} ({uid})")
+
+    if bottles > 0 or cans > 0:
+        result = checkout(uid, bottles, cans, points)
+        if result.get("success"):
+            print(f"[CHECKOUT] Success")
+        else:
+            print(f"[CHECKOUT] Failed or backend not available")
+
+    session.clear()
+    root.after(2000, app.go_idle)
 
 if __name__ == "__main__":
     root = tk.Tk()
-    root.title("Recycle Rewards")
-    # TODO: build full UI here
+    app = App(root, on_checkout=on_checkout, fullscreen=True)
+
+    start_nfc()
 
     scanner = BarcodeScanner(on_scan=on_scan)
-    # source = webcam
-    feed = CameraFeed(root, source=0, on_frame=scanner.process_frame)
+    feed = CameraFeed(root, source=0, on_frame=scanner.process_frame, display=False)
+
+    root.after(100, poll_nfc)
+
     root.protocol("WM_DELETE_WINDOW", lambda: (feed.release(), root.destroy()))
     root.mainloop()
