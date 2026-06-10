@@ -1,8 +1,13 @@
 import queue
 import threading
+import time
 from flask import Flask, request, render_template_string
 
+NFC_COOLDOWN = 3  # seconds - ignore same uid
+
 nfc_queue: queue.Queue = queue.Queue()
+_last_uid: str = ""
+_last_time: float = 0.0
 
 _app = Flask(__name__)
 
@@ -49,7 +54,18 @@ def index():
 
 @_app.route('/nfc', methods=['POST'])
 def receive_nfc():
+    global _last_uid, _last_time
+
     uid = request.json.get('uid')
+    now = time.time()
+
+    if uid == _last_uid and now - _last_time < NFC_COOLDOWN:
+        print(f"[NFC] Duplicate read ignored: {uid}")
+        return {'status': 'ok'}
+
+    _last_uid = uid
+    _last_time = now
+
     print(f"[NFC] UID received: {uid}")
     nfc_queue.put(uid)
     return {'status': 'ok'}

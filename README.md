@@ -137,3 +137,13 @@ Production entry point, differences from debug:
 ```bash
 pytest tests/
 ```
+
+---
+
+## Troubleshooting
+
+### pyzbar ImportError on Windows
+
+If you get an `ImportError` for a missing `libzbar-64.dll`, install the Visual Studio C++ Redistributable:
+
+[Download vcredist_x64.exe](https://www.microsoft.com/en-US/download/details.aspx?id=40784)

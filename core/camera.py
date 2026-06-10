@@ -21,8 +21,6 @@ class CameraFeed:
     def update(self):
         ret, frame = self.cap.read()
         if ret:
-            frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
-
             # pass frame to scanner before displaying
             if self.on_frame:
                 self.on_frame(frame)

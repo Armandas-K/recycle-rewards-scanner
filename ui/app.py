@@ -10,8 +10,9 @@ class App:
         self.root.title("Recycle Rewards")
 
         if fullscreen:
-            self.root.attributes("-fullscreen", True)
-            self.root.bind("<Escape>", lambda e: self.root.attributes("-fullscreen", False))
+            self.root.state("zoomed")
+            #self.root.attributes("-fullscreen", True)
+            #self.root.bind("<Escape>", lambda e: self.root.attributes("-fullscreen", False))
         else:
             self.root.geometry("1000x700")
 

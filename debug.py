@@ -18,6 +18,8 @@ STREAM_URL = "http://192.168.1.196:8080/video"
 CAMERA_SOURCE = STREAM_URL
 #CAMERA_SOURCE = 0
 
+DISPLAY_SCALE = 1.0 if CAMERA_SOURCE == 0 else 0.35
+
 POINTS_PER_BOTTLE = 3
 POINTS_PER_CAN = 5
 INACTIVITY_TIMEOUT = 30_000  # ms - checkout triggered after no scan for 30 seconds
@@ -157,7 +159,7 @@ if __name__ == "__main__":
     threading.Thread(target=console_nfc_input, daemon=True).start()
 
     scanner = BarcodeScanner(on_scan=on_scan)
-    feed = CameraFeed(camera_window, source=CAMERA_SOURCE, on_frame=scanner.process_frame, display=True, display_scale=0.35)
+    feed = CameraFeed(camera_window, source=CAMERA_SOURCE, on_frame=scanner.process_frame, display=True, display_scale=DISPLAY_SCALE)
 
     root.after(100, poll_nfc)
 
